@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 # bin/detect <build-dir>
-echo 'Lua'
+echo 'Lua Openresty nginx'
 exit 0
