@@ -1,0 +1,63 @@
+daemon off;
+# Heroku dynos have at least 4 cores.
+worker_processes <%= ENV['NGINX_WORKERS'] || 4 %>;
+
+events {
+  use epoll;
+  accept_mutex on;
+  worker_connections 1024;
+}
+
+http {
+  gzip on;
+  gzip_comp_level 2;
+  gzip_min_length 512;
+
+  server_tokens off;
+
+  # log_format l2met 'measure#nginx.service=$request_time request_id=$http_x_request_id';
+  log_format custom 'measure#nginx.service=$request_time request="$request" '
+    'status_code=$status request_id=$http_x_request_id '
+    'remote_addr="$remote_addr" forwarded_for="$http_x_forwarded_for" '
+    'forwarded_proto="$http_x_forwarded_proto" via="$http_via" '
+    'body_bytes_sent=$body_bytes_sent referer="$http_referer" '
+    'user_agent="$http_user_agent" sandbox="$http_is_sandbox"';
+
+  access_log logs/nginx/access.log custom;
+  error_log logs/nginx/error.log;
+
+  include mime.types;
+  default_type application/octet-stream;
+  sendfile on;
+
+  # Must read the body in 5 seconds.
+  client_body_timeout <%= ENV['NGINX_CLIENT_BODY_TIMEOUT'] || 5 %>;
+
+  map $http_is_sandbox $proxy_url {
+
+    "" https://<%= ENV['PROD_ENDPOINT'] %>;
+    "true" https://<%= ENV['SB_ENDPOINT'] %>;
+    "false" https://<%= ENV['PROD_ENDPOINT'] %>;
+  }
+
+  server {
+    listen <%= ENV["PORT"] %>;
+    resolver <%= ENV['RESOLVER'] %>;
+    server_name <%= ENV['DOMAIN_NAME'] || _ %>;
+    keepalive_timeout 5;
+    underscores_in_headers on;
+
+    location / {
+      proxy_buffering off;
+      proxy_ssl_server_name on;
+      proxy_pass $proxy_url$request_uri;
+      proxy_pass_request_headers on;
+      proxy_ssl_session_reuse on;
+    }
+    location /healthcheck {
+      access_log off;
+      return 200 "healthy\n";
+    }
+  }
+}
+

@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+set -e
+
+mkdir -p "$1/nginx/bin/"
+
+cp -r "bin/openresty" "$1/nginx/bin/openresty"
+echo "-----> openresty-buildpack: Installed openresty-1.13.6.2 to app/nginx/bin/openresty"
+
+cp bin/start-nginx-openresty "$1/nginx/bin/"
+echo '-----> openresty-buildpack: Added start-nginx-openresty to app/nginx/bin'
+
+mkdir -p "$1/nginx/config"
+
+cp bin/openresty/nginx/conf/mime.types "$1/nginx/config/"
+echo '-----> openresty-buildpack: Openresty mime.types copied to app/nginx/config/'
+
+if [[ ! -f $1/nginx/config/nginx.conf.erb ]]; then
+    cp config/nginx.conf.erb "$1/nginx/config/"
+    echo '-----> openresty-buildpack: Default config copied to app/nginx/config.'
+else
+    echo '-----> openresty-buildpack: Custom config found in app/nginx/config.'
+fi
+
+exit 0
