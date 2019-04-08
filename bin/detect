@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 # bin/detect <build-dir>
-echo 'Openresty'
+echo 'Lua'
 exit 0
