@@ -37,7 +37,7 @@ echo 'buildpack=nginx-openresty at=logs-initialized'
   # We also expect a socket to be at /tmp/nginx.socket.
   echo 'buildpack=nginx-openresty at=nginx-start'
   export LD_LIBRARY_PATH=nginx/bin/openresty/luajit/lib:$LD_LIBRARY_PATH
-  nginx/bin/openresty/nginx/sbin/nginx -p . -c nginx/config/nginx.conf
+  nginx/bin/openresty/nginx/sbin/nginx -p . -c config/nginx.conf
   echo 'nginx' >$psmgr
 ) &
 

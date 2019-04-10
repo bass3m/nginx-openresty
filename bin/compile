@@ -12,7 +12,7 @@ echo '-----> openresty-buildpack: Added start-nginx-openresty to app/nginx/bin'
 
 mkdir -p "$1/nginx/config"
 
-cp bin/openresty/nginx/conf/mime.types "$1/nginx/config/"
+cp bin/openresty/nginx/conf/mime.types "$1/config/"
 echo '-----> openresty-buildpack: Openresty mime.types copied to app/nginx/config/'
 
 if [[ ! -f $1/nginx/config/nginx.conf.erb ]]; then
